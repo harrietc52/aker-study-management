@@ -11,8 +11,8 @@ class Node < ApplicationRecord
   validate :validate_deactivate, unless: :active?
   validate :validate_name_active_uniqueness, if: :active?
 
-	has_many :nodes, class_name: 'Node', foreign_key: 'parent_id', dependent: :restrict_with_error
-	belongs_to :parent, class_name: 'Node', required: false
+  has_many :nodes, class_name: 'Node', foreign_key: 'parent_id', dependent: :restrict_with_error
+  belongs_to :parent, class_name: 'Node', required: false
   belongs_to :deactivated_by, class_name: "User"
   belongs_to :owner, class_name: "User"
 
@@ -26,8 +26,8 @@ class Node < ApplicationRecord
   end
 
   def self.root
-		find_by(parent_id: nil)
-	end
+    find_by(parent_id: nil)
+  end
 
   def root?
     parent_id.nil?
@@ -39,7 +39,7 @@ class Node < ApplicationRecord
 
   # Gets the parents of a node,
   # starting from root, ending at the node's direct parent
-	def parents
+  def parents
     parents = []
     p = parent
     while p do
