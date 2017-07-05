@@ -12,6 +12,7 @@ class Node < ApplicationRecord
   validate :validate_name_active_uniqueness, if: :active?
 
   has_many :nodes, class_name: 'Node', foreign_key: 'parent_id', dependent: :restrict_with_error
+  has_many :privileges
   belongs_to :parent, class_name: 'Node', required: false
   belongs_to :deactivated_by, class_name: "User"
   belongs_to :owner, class_name: "User"
