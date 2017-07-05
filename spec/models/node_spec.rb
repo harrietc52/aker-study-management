@@ -295,4 +295,53 @@ RSpec.describe Node, type: :model do
     	expect(@parent.active_children).to match_array(@active_children)
     end
   end
+
+  describe '#check_privilege' do
+
+    let(:user) { create(:user, email: 'useremail') }
+    let(:node) { create(:node) }
+
+    context 'when the user is listed as having the correct privilege' do
+      it 'is true' do
+        create(:privilege, node: node, name: user.email, role: :editor)
+
+        expect(node.check_privilege(user, :editor)).to eq(true)
+      end
+    end
+
+    context 'when the user is listed as having a different privilege' do
+      it 'is false' do
+        create(:privilege, node: node, name: user.email, role: :spender)
+
+        expect(node.check_privilege(user, :editor)).to eq(false)
+      end
+    end
+
+    context 'when the user is in a group that has the correct privilege' do
+      it 'is true' do
+        create(:privilege, node: node, name: user.groups.first, role: :editor)
+
+        expect(node.check_privilege(user, :editor)).to eq(true)
+      end
+    end
+
+
+    context 'when the user is in a group that has a different privilege' do
+      it 'is false' do
+        create(:privilege, node: node, name: user.groups.first, role: :spender)
+
+        expect(node.check_privilege(user, :editor)).to eq(false)
+      end
+    end
+
+    context 'when the user has a combination of privileges' do
+      it 'is true' do
+        create(:privilege, node: node, name: user.groups.first, role: :editor)
+        create(:privilege, node: node, name: user.email, role: :spender)
+
+        expect(node.check_privilege(user, :editor)).to eq(true)
+        expect(node.check_privilege(user, :spender)).to eq(true)
+      end
+    end
+  end
 end

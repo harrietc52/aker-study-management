@@ -1,3 +1,5 @@
+require 'set'
+
 class Node < ApplicationRecord
   include Collector
   include AkerPermissionGem::Accessible
@@ -68,6 +70,12 @@ class Node < ApplicationRecord
 
   def active_children
     nodes.select(&:active?)
+  end
+
+  def check_privilege(user, role)
+    role = role.to_s
+    email_and_groups = Set.new([user.email] + user.groups)
+    privileges.any? { |pr| pr.role==role && email_and_groups.include?(pr.name) }
   end
 
   private
