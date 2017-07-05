@@ -105,42 +105,62 @@ RSpec.describe 'API::V1::Nodes', type: :request do
   end
 
   describe 'creating' do
+    let(:user) { create(:user) }
+
     before(:each) do
-      user = create(:user)
       sign_in user
 
       @root = create(:node, parent_id: nil, name: 'root')
     end
 
-    context 'when creating a node at level 2' do
-      it 'creates a collection for the node' do
-        params = { data: {
-            type: 'nodes',
-            attributes: { name: 'Bananas' },
-            relationships: { parent: { data: { type: 'nodes', id: @root.id } } },
+    describe 'setting collections' do
+      context 'when creating a node at level 2' do
+        it 'creates a collection for the node' do
+          params = { data: {
+              type: 'nodes',
+              attributes: { name: 'Bananas' },
+              relationships: { parent: { data: { type: 'nodes', id: @root.id } } },
+            }
           }
-        }
-        expect_any_instance_of(Node).to receive(:set_collection)
-        post api_v1_nodes_path, params: params.to_json, headers: headers
-        expect(response).to have_http_status(:created)
+          expect_any_instance_of(Node).to receive(:set_collection)
+          post api_v1_nodes_path, params: params.to_json, headers: headers
+          expect(response).to have_http_status(:created)
+        end
+      end
+      context 'when creating a node at level 3' do
+
+        before do
+          @prog = create(:node, parent_id: @root.id, name: 'prog')
+        end
+
+        it 'does not create a collection for the node' do
+          params = { data: {
+              type: 'nodes',
+              attributes: { name: 'Bananas' },
+              relationships: { parent: { data: { type: 'nodes', id: @prog.id } } },
+            }
+          }
+          expect_any_instance_of(Node).not_to receive(:set_collection)
+          post api_v1_nodes_path, params: params.to_json, headers: headers
+          expect(response).to have_http_status(:created)
+        end
       end
     end
-    context 'when creating a node at level 3' do
-
-      before do
-        @prog = create(:node, parent_id: @root.id, name: 'prog')
-      end
-
-      it 'does not create a collection for the node' do
+    describe 'setting ownership' do
+      it 'sets the owner to the current user' do
+        allow_any_instance_of(Node).to receive(:set_collection)
         params = { data: {
-            type: 'nodes',
-            attributes: { name: 'Bananas' },
-            relationships: { parent: { data: { type: 'nodes', id: @prog.id } } },
+              type: 'nodes',
+              attributes: { name: 'Bananas' },
+              relationships: { parent: { data: { type: 'nodes', id: @root.id } } },
+            }
           }
-        }
-        expect_any_instance_of(Node).not_to receive(:set_collection)
         post api_v1_nodes_path, params: params.to_json, headers: headers
         expect(response).to have_http_status(:created)
+        n = Node.find_by(name: 'Bananas')
+        expect(n).not_to be_nil
+        expect(n.owner).not_to be_nil
+        expect(n.owner).to eq(user)
       end
     end
   end

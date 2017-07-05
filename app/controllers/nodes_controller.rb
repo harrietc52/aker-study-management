@@ -25,6 +25,8 @@ class NodesController < ApplicationController
   def create
     @node = Node.new(node_params)
 
+    @node.owner = current_user
+
     if @node.save
       flash[:success] = "Node created"
       @node.set_collection if @node.level==2
