@@ -67,6 +67,8 @@ class NodesController < ApplicationController
     end
   end
 
+  helper_method :check_editor_privilege
+
   private
 
   def set_child
@@ -79,6 +81,10 @@ class NodesController < ApplicationController
 
   def node_params
     params.require(:node).permit(:name, :parent_id, :description, :cost_code)
+  end
+
+  def check_editor_privilege
+    @node.check_privilege(current_user, :editor)
   end
 
 end
