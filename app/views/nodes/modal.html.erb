@@ -1,3 +1,7 @@
+<div class="modal-header">
+	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	<h4 class="modal-title" id="myModalLabel"><%= check_editor_privilege ? "Edit Node" : "Current Node" %></h4>
+</div>
 <%= bootstrap_form_for(@node, remote: true, accept: :json) do |f| %>
 	<%= render "node_fields", f: f, disabled: check_editor_privilege.! %>
 	<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

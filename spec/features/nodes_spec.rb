@@ -2,8 +2,8 @@ require 'rails_helper'
 
 RSpec.describe 'Nodes', type: :feature do
 
-  before(:each) do
-    user = create(:user)
+  let(:user) { create(:user) }
+  before do
     sign_in user
 
     allow(SetClient::Set).to receive(:create).and_return(double('Set', id: SecureRandom.uuid))
@@ -16,6 +16,9 @@ RSpec.describe 'Nodes', type: :feature do
       @program1 = create(:node, name: "program1", parent: @root)
       @program2 = create(:node, name: "program2", parent: @root)
 
+      create(:privilege, node: @program1, name: user.groups.first, role: :editor)
+      create(:privilege, node: @program2, name: user.groups.first, role: :editor)
+
       visit root_path
     end
 
@@ -26,8 +29,8 @@ RSpec.describe 'Nodes', type: :feature do
     end
 
     it "you can edit or delete program level nodes" do
-      expect(page).to have_content('Edit')
-      expect(page).to have_content('Delete')
+      expect(page).to have_link('Edit')
+      expect(page).to have_link('Delete')
     end
 
   end
@@ -175,13 +178,16 @@ RSpec.describe 'Nodes', type: :feature do
       @root = create(:node, name: "root", parent_id: nil)
       @program1 = create(:node, name: "program1", parent: @root)
       @program11 = create(:node, name: "program11", parent: @program1)
+
+      create(:privilege, node: @program11, name: user.groups.first, role: :editor)
+
       visit list_node_path(@program1.id)
     end
 
     it "displays the children of the node" do
         expect(page).to have_content('program11')
-        expect(page).to have_content('Edit')
-        expect(page).to have_content('Delete')
+        expect(page).to have_link('Edit')
+        expect(page).to have_link('Delete')
     end
 
     context 'when node is a proposal' do

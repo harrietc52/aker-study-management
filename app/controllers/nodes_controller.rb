@@ -71,7 +71,7 @@ class NodesController < ApplicationController
     end
   end
 
-  helper_method :check_editor_privilege
+  helper_method :check_editor_privilege, :check_editor_privilege_for_node
 
   private
 
@@ -89,6 +89,10 @@ class NodesController < ApplicationController
 
   def check_editor_privilege
     @node.check_privilege(current_user, :editor)
+  end
+
+  def check_editor_privilege_for_node(n)
+    n.check_privilege(current_user, :editor)
   end
 
 end
