@@ -74,10 +74,18 @@ RSpec.describe NodesController, type: :controller do
     end
 
     context "success" do
-      it "update the node" do
+      it "you can update the node if the current user has the correct privileges" do
+        create(:privilege, node: @program1, name: user.groups.first, role: :editor)
+
         put :update, params: { id: @program1.id, node: { id: @program1.id, name: "test"} }
         @program1.reload
         @program1.name == "test"
+      end
+    end
+
+    context "failure" do
+      it "you cannot update the node if the current user does not have the privileges" do
+        expect { put :update, params: { id: @program1.id, node: { id: @program1.id, name: "test"} }}.to raise_error
       end
     end
   end

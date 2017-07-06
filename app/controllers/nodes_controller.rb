@@ -44,6 +44,10 @@ class NodesController < ApplicationController
   end
 
   def update
+    unless @node.check_privilege(current_user, :editor)
+      raise "#{current_user.email} does not have the correct privileges to update node #{@node.id}."
+      return
+    end
     respond_to do |format|
       if @node.update_attributes(node_params)
         format.html { redirect_to node_path(@node.parent_id), flash: { success: "Node updated" }}
